@@ -3,7 +3,7 @@ export default function CreateSekolahPage() {
     <>
       <div className="mx-auto max-w-7xl space-y-6">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-sm text-slate-500">
+        {/* <nav className="flex items-center gap-2 text-sm text-slate-500">
           <a href="/dashboard" className="transition hover:text-indigo-600">
             Dashboard
           </a>
@@ -13,7 +13,7 @@ export default function CreateSekolahPage() {
           </a>
           <span>/</span>
           <span className="font-medium text-indigo-600">Tambah Sekolah</span>
-        </nav>
+        </nav> */}
 
         {/* Page Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

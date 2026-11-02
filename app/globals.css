@@ -1,5 +1,51 @@
 @import "tailwindcss";
 
+/* Leaflet */
+@import "leaflet/dist/leaflet.css";
+
+.custom-school-marker {
+  background: transparent;
+  border: none;
+}
+
+.school-marker {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  background: white;
+  border: 3px solid white;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.school-marker-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  border-radius: 50%;
+  transform: rotate(45deg);
+}
+
+.school-marker-point {
+  position: absolute;
+  bottom: -7px;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  background: white;
+  border-radius: 50%;
+  transform: translateX(-50%);
+}
+
+/* Leaflet End */
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

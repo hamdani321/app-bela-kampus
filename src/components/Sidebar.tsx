@@ -55,9 +55,9 @@ export default function Sidebar({
   setSidebarOpen,
   mobileSidebar,
   setMobileSidebar,
-  activeMenu,
-  setActiveMenu,
-}: {
+}: // activeMenu,
+// setActiveMenu,
+{
   sidebarOpen: boolean;
   setSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
   mobileSidebar: boolean;

@@ -1,6 +1,225 @@
+"use client";
 import Link from "next/link";
+// import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+// import L from "leaflet";
+import { useEffect, useMemo, useState } from "react";
+import { Sekolah } from "@/src/modules/models/sekolah.model";
+import { getSekolah } from "@/src/modules/sekolah/services/sekolah.service";
+import { AllCommunityModule, ColDef } from "ag-grid-community";
+import { AgGridProvider, AgGridReact } from "ag-grid-react";
+import dynamic from "next/dynamic";
+import MapSekolahLoader from "@/src/components/MapSekolahLoader";
 
+// Perbaikan icon marker Leaflet
+// const markerIcon = L.icon({
+//   iconUrl: "/assets/images/blue-icon.png",
+//   // iconRetinaUrl: "/assets/images/blue-icon-2x.png",
+//   iconSize: [35, 35],
+//   iconAnchor: [12, 41],
+//   popupAnchor: [1, -34],
+//   shadowSize: [41, 41],
+// });
+const modules = [AllCommunityModule];
 export default function SekolahPage() {
+  const [sekolah, setSekolah] = useState<Sekolah[] | null>();
+  const fetchSekolah = async () => {
+    const sekolahResponse = await getSekolah();
+    setSekolah(sekolahResponse.data);
+  };
+
+  useEffect(() => {
+    fetchSekolah();
+  }, []);
+
+  const defaultColDef = useMemo<ColDef<Sekolah>>(
+    () => ({
+      sortable: true,
+      resizable: true,
+    }),
+    []
+  );
+
+  const columnDefs = useMemo<ColDef<Sekolah>[]>(
+    () => [
+      {
+        headerName: "No",
+        width: 75,
+        maxWidth: 75,
+        sortable: false,
+        filter: false,
+        resizable: false,
+        valueGetter: (params: any) =>
+          params.node?.rowIndex != null ? params.node.rowIndex + 1 : "",
+        cellClass: "text-center text-gray-500 font-medium",
+      },
+      {
+        field: "nama",
+        headerName: "Informasi Sekolah",
+        minWidth: 250,
+        flex: 1.3,
+        filter: true,
+        cellRenderer: (params: { data?: Sekolah }) => {
+          const sekolah = params.data;
+
+          if (!sekolah) return null;
+
+          return (
+            <div className="flex h-full items-center gap-3 py-1">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 ring-1 ring-blue-100">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                >
+                  <path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4" />
+                  <path d="M9 9v.01M9 12v.01M9 15v.01M9 18v.01M16 13v.01M16 16v.01M16 19v.01" />
+                </svg>
+              </div>
+
+              <div className="flex min-w-0 flex-col justify-center">
+                <span className="truncate font-semibold text-gray-800">
+                  {sekolah.nama}
+                </span>
+                <span className="truncate text-xs text-gray-400">
+                  ID Sekolah: #{sekolah.id}
+                </span>
+              </div>
+            </div>
+          );
+        },
+      },
+      {
+        field: "email",
+        headerName: "Email",
+        minWidth: 210,
+        flex: 1,
+        filter: true,
+        cellRenderer: (params: { value?: string }) => {
+          const email = params.value;
+
+          return (
+            <div className="flex h-full items-center gap-2">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-50 text-gray-500">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                >
+                  <rect x="3" y="5" width="18" height="14" rx="2" />
+                  <path d="m3 7 9 6 9-6" />
+                </svg>
+              </div>
+
+              <span className="truncate text-sm text-gray-600">
+                {email || "-"}
+              </span>
+            </div>
+          );
+        },
+      },
+      {
+        field: "telepon",
+        headerName: "Nomor Telepon",
+        minWidth: 160,
+        filter: true,
+        cellRenderer: (params: { value?: string }) => {
+          return (
+            <div className="flex h-full items-center gap-2">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-50 text-green-600">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                >
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.8 19.8 0 0 1 11.19 18a19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.09 3.18 2 2 0 0 1 4.08 1h3a2 2 0 0 1 2 1.72c.12.96.35 1.9.7 2.8a2 2 0 0 1-.45 2.11L8.06 8.94a16 16 0 0 0 6 6l1.3-1.27a2 2 0 0 1 2.11-.45c.9.35 1.84.58 2.8.7A2 2 0 0 1 22 16.92z" />
+                </svg>
+              </div>
+
+              <span className="text-sm font-medium text-gray-700">
+                {params.value || "-"}
+              </span>
+            </div>
+          );
+        },
+      },
+      {
+        field: "alamat",
+        headerName: "Alamat Sekolah",
+        minWidth: 250,
+        flex: 1.3,
+        filter: true,
+        tooltipField: "alamat",
+        cellRenderer: (params: { value?: string }) => {
+          return (
+            <div className="flex h-full items-center gap-2">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-50 text-orange-600">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                >
+                  <path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" />
+                  <circle cx="12" cy="10" r="2.5" />
+                </svg>
+              </div>
+
+              <span className="truncate text-sm text-gray-600">
+                {params.value || "-"}
+              </span>
+            </div>
+          );
+        },
+      },
+      {
+        headerName: "Koordinat Lokasi",
+        minWidth: 190,
+        sortable: false,
+        filter: false,
+        cellRenderer: (params: { data?: Sekolah }) => {
+          const sekolah = params.data;
+
+          if (!sekolah) return null;
+
+          const hasCoordinates = sekolah.latitude && sekolah.longitude;
+
+          return (
+            <div className="flex h-full items-center">
+              {hasCoordinates ? (
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs font-medium text-gray-700">
+                    {sekolah.latitude}, {sekolah.longitude}
+                  </span>
+
+                  <span className="inline-flex w-fit items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-semibold text-green-700">
+                    <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+                    Lokasi tersedia
+                  </span>
+                </div>
+              ) : (
+                <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-500">
+                  Belum ditentukan
+                </span>
+              )}
+            </div>
+          );
+        },
+      },
+    ],
+    []
+  );
+
   return (
     <>
       {/* Header */}
@@ -273,8 +492,24 @@ export default function SekolahPage() {
         </div>
 
         {/* Tabel data */}
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[1250px] text-left text-sm">
+        <div className="overflow-x-auto h-[900px]">
+          <AgGridProvider modules={modules}>
+            <AgGridReact<Sekolah>
+              // theme={themeQuartz}
+
+              rowData={sekolah}
+              columnDefs={columnDefs}
+              defaultColDef={defaultColDef}
+              getRowId={(params) => String(params.data.id)}
+              pagination={true}
+              paginationPageSize={10}
+              paginationPageSizeSelector={[10, 20, 50]}
+              animateRows={true}
+              rowHeight={100}
+            />
+          </AgGridProvider>
+
+          {/* <table className="w-full min-w-[1250px] text-left text-sm">
             <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
               <tr>
                 <th className="px-5 py-4 font-semibold">No.</th>
@@ -300,50 +535,6 @@ export default function SekolahPage() {
                   longitude: "101.032703",
                   inisial: "S1",
                   warna: "bg-blue-100 text-blue-700",
-                },
-                {
-                  no: 2,
-                  nama: "SMAN 2 Bangkinang",
-                  hp: "0813-4567-8901",
-                  email: "sman2bangkinang@example.com",
-                  alamat: "Jl. Olahraga, Bangkinang",
-                  latitude: "0.337210",
-                  longitude: "101.018420",
-                  inisial: "S2",
-                  warna: "bg-violet-100 text-violet-700",
-                },
-                {
-                  no: 3,
-                  nama: "SMKN 1 Bangkinang",
-                  hp: "0821-5678-9012",
-                  email: "smkn1bangkinang@example.com",
-                  alamat: "Jl. M. Yamin, Bangkinang",
-                  latitude: "0.341520",
-                  longitude: "101.025610",
-                  inisial: "SK",
-                  warna: "bg-emerald-100 text-emerald-700",
-                },
-                {
-                  no: 4,
-                  nama: "SMAS Muhammadiyah",
-                  hp: "0852-6789-0123",
-                  email: "smasmuh@example.com",
-                  alamat: "Jl. Ahmad Yani, Bangkinang",
-                  latitude: "—",
-                  longitude: "—",
-                  inisial: "SM",
-                  warna: "bg-amber-100 text-amber-700",
-                },
-                {
-                  no: 5,
-                  nama: "SMAN 1 Tapung",
-                  hp: "0812-7890-1234",
-                  email: "sman1tapung@example.com",
-                  alamat: "Jl. Raya Petapahan, Tapung",
-                  latitude: "0.567820",
-                  longitude: "101.112340",
-                  inisial: "ST",
-                  warna: "bg-pink-100 text-pink-700",
                 },
               ].map((sekolah) => (
                 <tr
@@ -502,11 +693,11 @@ export default function SekolahPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table> */}
         </div>
 
         {/* Pagination */}
-        <div className="flex flex-col gap-4 border-t border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        {/* <div className="flex flex-col gap-4 border-t border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <p className="text-sm text-slate-500">
             Menampilkan{" "}
             <span className="font-semibold text-slate-800">1–5</span> dari{" "}
@@ -552,7 +743,33 @@ export default function SekolahPage() {
               Selanjutnya
             </button>
           </div>
-        </div>
+        </div> */}
+      </section>
+
+      <section className="overflow-hidden mt-3 rounded-2xl border border-slate-200 bg-white shadow-sm">
+        {/* <div className="flex flex-col gap-4 border-b border-slate-100 p-5 sm:p-6 lg:flex-row lg:items-center lg:justify-between"> */}
+        {/* <MapSekolah key={0} sekolah={sekolah} /> */}
+        <MapSekolahLoader sekolah={sekolah} />
+        {/* <MapContainer
+          className="z-0"
+          center={[-6.2088, 106.8456]}
+          zoom={13}
+          scrollWheelZoom={true}
+          style={{
+            height: "500px",
+            width: "100%",
+          }}
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+
+          <Marker position={[-6.2088, 106.8456]} icon={markerIcon}>
+            <Popup>Lokasi Sekolah</Popup>
+          </Marker>
+        </MapContainer> */}
+        {/* </div> */}
       </section>
     </>
   );

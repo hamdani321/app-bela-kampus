@@ -114,48 +114,48 @@ import Sidebar from "@/src/components/Sidebar";
 //   },
 // ];
 
-const registrations = [
-  {
-    initials: "AR",
-    name: "Ahmad Rizky",
-    nim: "2301010021",
-    school: "SMAN 1 Bangkinang",
-    portal: "Promosi Gelombang I",
-    date: "25 Okt 2026",
-    status: "Disetujui",
-    color: "bg-indigo-100 text-indigo-700",
-  },
-  {
-    initials: "SP",
-    name: "Siti Putri Amelia",
-    nim: "2301010028",
-    school: "SMAN 2 Pekanbaru",
-    portal: "Campus Visit 2026",
-    date: "24 Okt 2026",
-    status: "Menunggu",
-    color: "bg-pink-100 text-pink-700",
-  },
-  {
-    initials: "MF",
-    name: "Muhammad Farhan",
-    nim: "2301010035",
-    school: "SMK Negeri 1 Kampar",
-    portal: "Promosi Gelombang I",
-    date: "24 Okt 2026",
-    status: "Disetujui",
-    color: "bg-amber-100 text-amber-700",
-  },
-  {
-    initials: "NA",
-    name: "Nur Aisyah",
-    nim: "2301010042",
-    school: "MAN 1 Kampar",
-    portal: "Campus Visit 2026",
-    date: "23 Okt 2026",
-    status: "Ditinjau",
-    color: "bg-emerald-100 text-emerald-700",
-  },
-];
+// const registrations = [
+//   {
+//     initials: "AR",
+//     name: "Ahmad Rizky",
+//     nim: "2301010021",
+//     school: "SMAN 1 Bangkinang",
+//     portal: "Promosi Gelombang I",
+//     date: "25 Okt 2026",
+//     status: "Disetujui",
+//     color: "bg-indigo-100 text-indigo-700",
+//   },
+//   {
+//     initials: "SP",
+//     name: "Siti Putri Amelia",
+//     nim: "2301010028",
+//     school: "SMAN 2 Pekanbaru",
+//     portal: "Campus Visit 2026",
+//     date: "24 Okt 2026",
+//     status: "Menunggu",
+//     color: "bg-pink-100 text-pink-700",
+//   },
+//   {
+//     initials: "MF",
+//     name: "Muhammad Farhan",
+//     nim: "2301010035",
+//     school: "SMK Negeri 1 Kampar",
+//     portal: "Promosi Gelombang I",
+//     date: "24 Okt 2026",
+//     status: "Disetujui",
+//     color: "bg-amber-100 text-amber-700",
+//   },
+//   {
+//     initials: "NA",
+//     name: "Nur Aisyah",
+//     nim: "2301010042",
+//     school: "MAN 1 Kampar",
+//     portal: "Campus Visit 2026",
+//     date: "23 Okt 2026",
+//     status: "Ditinjau",
+//     color: "bg-emerald-100 text-emerald-700",
+//   },
+// ];
 
 const activities = [
   {

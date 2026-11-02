@@ -327,7 +327,7 @@ export default function RegistrasiPortalPage() {
       </section>
 
       {/* Table container */}
-      <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+      <section className="mt-3 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="border-b border-gray-100 p-5 sm:p-6">
           <div className="flex flex-col justify-between gap-4 xl:flex-row xl:items-center">
             <div>

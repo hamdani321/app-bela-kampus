@@ -1,4 +1,4 @@
-import { MahasiswaResponse } from "../../models/mahasiswa.mode";
+import { MahasiswaResponse } from "../../models/mahasiswa.model";
 
 export async function getAllMahasiswa(): Promise<MahasiswaResponse> {
   const response = await fetch(`http://localhost:3001/api/mahasiswa`, {

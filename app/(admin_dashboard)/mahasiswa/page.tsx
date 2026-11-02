@@ -1,6 +1,6 @@
 "use client";
 
-import { Mahasiswa } from "@/src/modules/models/mahasiswa.mode";
+import { Mahasiswa } from "@/src/modules/models/mahasiswa.model";
 import { getAllMahasiswa } from "@/src/modules/mahasiswa/services/mahasiswa.service";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -243,10 +243,14 @@ export default function MahasiswaPage() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-sm font-medium text-slate-500">
-                Program Studi
+                Jumlah Laki-laki
               </p>
               <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
-                6
+                {
+                  mahasiswa?.filter(
+                    (item) => item.jenis_kelamin === "LAKI_LAKI"
+                  ).length
+                }
               </h2>
               <p className="mt-2 text-xs text-slate-500">
                 Program studi tersedia
@@ -276,9 +280,15 @@ export default function MahasiswaPage() {
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-500">Total Kelas</p>
+              <p className="text-sm font-medium text-slate-500">
+                Jumlah Perempuan
+              </p>
               <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
-                32
+                {
+                  mahasiswa?.filter(
+                    (item) => item.jenis_kelamin === "PEREMPUAN"
+                  ).length
+                }
               </h2>
               <p className="mt-2 text-xs text-slate-500">
                 Kelas aktif terdaftar
