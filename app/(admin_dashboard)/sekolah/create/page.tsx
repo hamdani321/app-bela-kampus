@@ -1,4 +1,52 @@
+"use client";
+import {
+  SekolahErrorResponse,
+  SekolahRequest,
+} from "@/src/models/sekolah.models";
+import { createSekolah } from "@/src/modules/sekolah/services/sekolah.service";
+import { useRouter } from "next/navigation";
+
+import React, { useState } from "react";
+import Swal from "sweetalert2";
+
 export default function CreateSekolahPage() {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [form, setForm] = useState<SekolahRequest>({
+    npsn: "",
+    nama: "",
+    email: "",
+    alamat: "",
+    telepon: "",
+    latitude: "",
+    longitude: "",
+  });
+  const [errors, setErrors] = useState<SekolahErrorResponse>();
+  const router = useRouter();
+
+  const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    setLoading(true);
+    try {
+      const result = await createSekolah(form);
+      console.log(result);
+
+      Swal.fire({
+        title: "Sukses!",
+        text: "Berhasil tambah data sekolah!",
+        icon: "success",
+      }).then(() => {
+        router.push("/sekolah");
+      });
+    } catch (error) {
+      console.log(error);
+
+      setErrors(error as SekolahErrorResponse);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
       <div className="mx-auto max-w-7xl space-y-6">
@@ -101,7 +149,7 @@ export default function CreateSekolahPage() {
         </div>
 
         {/* Form */}
-        <form className="space-y-6">
+        <form className="space-y-6" onSubmit={handleSubmit}>
           {/* Identitas Sekolah */}
           <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
             <div className="flex items-center gap-4 border-b border-slate-100 px-5 py-5 sm:px-7">
@@ -139,13 +187,25 @@ export default function CreateSekolahPage() {
                 </label>
                 <input
                   id="nama"
-                  name="nama"
                   type="text"
-                  required
+                  value={form.nama}
+                  onChange={(event) => {
+                    setForm({ ...form, nama: event.target.value });
+                  }}
                   maxLength={255}
                   placeholder="Contoh: SMA Negeri 1 Bangkinang"
                   className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
                 />
+                {errors?.errors?.nama ? (
+                  <>
+                    {errors?.errors?.nama.map((message) => (
+                      <>
+                        <small className="text-red-600">{message}</small>
+                        <br></br>
+                      </>
+                    ))}
+                  </>
+                ) : null}
                 <p className="mt-2 text-xs text-slate-400">
                   Gunakan nama resmi sekolah sesuai data administrasi.
                 </p>
@@ -156,12 +216,33 @@ export default function CreateSekolahPage() {
                   htmlFor="jenis"
                   className="mb-2 block text-sm font-semibold text-slate-700"
                 >
-                  Jenjang Pendidikan <span className="text-rose-500">*</span>
+                  NPSN <span className="text-rose-500">*</span>
                 </label>
-                <select
+                <input
+                  id="nama"
+                  type="text"
+                  value={form.npsn}
+                  onChange={(event) => {
+                    setForm({ ...form, npsn: event.target.value });
+                  }}
+                  maxLength={255}
+                  placeholder="Contoh: SMA Negeri 1 Bangkinang"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
+                />
+                {errors?.errors?.npsn ? (
+                  <>
+                    {errors?.errors?.npsn.map((message) => (
+                      <>
+                        <small className="text-red-600">{message}</small>
+                        <br></br>
+                      </>
+                    ))}
+                  </>
+                ) : null}
+                {/* <select
                   id="jenis"
                   name="jenis"
-                  required
+                  
                   defaultValue=""
                   className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
                 >
@@ -172,7 +253,7 @@ export default function CreateSekolahPage() {
                   <option value="SMK">SMK</option>
                   <option value="MA">MA</option>
                   <option value="LAINNYA">Lainnya</option>
-                </select>
+                </select> */}
               </div>
 
               <div>
@@ -180,18 +261,39 @@ export default function CreateSekolahPage() {
                   htmlFor="status"
                   className="mb-2 block text-sm font-semibold text-slate-700"
                 >
-                  Status Sekolah <span className="text-rose-500">*</span>
+                  Email <span className="text-rose-500">*</span>
                 </label>
-                <select
+                <input
+                  id="email"
+                  type="text"
+                  value={form.email}
+                  onChange={(event) => {
+                    setForm({ ...form, email: event.target.value });
+                  }}
+                  maxLength={255}
+                  placeholder="Contoh: SMA Negeri 1 Bangkinang"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
+                />
+                {errors?.errors?.email ? (
+                  <>
+                    {errors?.errors?.email.map((message) => (
+                      <>
+                        <small className="text-red-600">{message}</small>
+                        <br></br>
+                      </>
+                    ))}
+                  </>
+                ) : null}
+                {/* <select
                   id="status"
                   name="status"
-                  required
+                  
                   defaultValue="NEGERI"
                   className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
                 >
                   <option value="NEGERI">Negeri</option>
                   <option value="SWASTA">Swasta</option>
-                </select>
+                </select> */}
               </div>
             </div>
           </section>
@@ -238,32 +340,56 @@ export default function CreateSekolahPage() {
                 </label>
                 <textarea
                   id="alamat"
-                  name="alamat"
-                  required
+                  value={form.alamat}
+                  onChange={(event) => {
+                    setForm({ ...form, alamat: event.target.value });
+                  }}
                   rows={3}
                   placeholder="Masukkan nama jalan, nomor, desa atau kelurahan..."
                   className="w-full resize-y rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
                 />
+                {errors?.errors?.alamat ? (
+                  <>
+                    {errors?.errors?.alamat.map((message) => (
+                      <>
+                        <small className="text-red-600">{message}</small>
+                        <br></br>
+                      </>
+                    ))}
+                  </>
+                ) : null}
               </div>
 
-              <div>
+              <div className="sm:col-span-2">
                 <label
-                  htmlFor="provinsi"
+                  htmlFor="telepon"
                   className="mb-2 block text-sm font-semibold text-slate-700"
                 >
-                  Provinsi <span className="text-rose-500">*</span>
+                  Telepon <span className="text-rose-500">*</span>
                 </label>
                 <input
-                  id="provinsi"
-                  name="provinsi"
-                  type="text"
-                  required
-                  placeholder="Contoh: Riau"
+                  id="telepon"
+                  type="number"
+                  value={form.telepon}
+                  onChange={(event) => {
+                    setForm({ ...form, telepon: event.target.value });
+                  }}
+                  placeholder=""
                   className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
                 />
+                {errors?.errors?.telepon ? (
+                  <>
+                    {errors?.errors?.telepon.map((message) => (
+                      <>
+                        <small className="text-red-600">{message}</small>
+                        <br></br>
+                      </>
+                    ))}
+                  </>
+                ) : null}
               </div>
 
-              <div>
+              {/* <div>
                 <label
                   htmlFor="kabupaten"
                   className="mb-2 block text-sm font-semibold text-slate-700"
@@ -274,7 +400,7 @@ export default function CreateSekolahPage() {
                   id="kabupaten"
                   name="kabupaten"
                   type="text"
-                  required
+                  
                   placeholder="Contoh: Kabupaten Kampar"
                   className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
                 />
@@ -313,7 +439,7 @@ export default function CreateSekolahPage() {
                   placeholder="Contoh: 28412"
                   className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
                 />
-              </div>
+              </div> */}
 
               <div>
                 <label
@@ -324,14 +450,27 @@ export default function CreateSekolahPage() {
                 </label>
                 <input
                   id="latitude"
-                  name="latitude"
                   type="number"
                   step="any"
+                  value={form.latitude}
+                  onChange={(event) => {
+                    setForm({ ...form, latitude: event.target.value });
+                  }}
                   min="-90"
                   max="90"
                   placeholder="Contoh: 0.3296148"
                   className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
                 />
+                {errors?.errors?.latitude ? (
+                  <>
+                    {errors?.errors?.latitude.map((message) => (
+                      <>
+                        <small className="text-red-600">{message}</small>
+                        <br></br>
+                      </>
+                    ))}
+                  </>
+                ) : null}
               </div>
 
               <div>
@@ -343,14 +482,27 @@ export default function CreateSekolahPage() {
                 </label>
                 <input
                   id="longitude"
-                  name="longitude"
                   type="number"
                   step="any"
                   min="-180"
                   max="180"
+                  value={form.longitude}
+                  onChange={(event) => {
+                    setForm({ ...form, longitude: event.target.value });
+                  }}
                   placeholder="Contoh: 101.0327029"
                   className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
                 />
+                {errors?.errors?.longitude ? (
+                  <>
+                    {errors?.errors?.longitude.map((message) => (
+                      <>
+                        <small className="text-red-600">{message}</small>
+                        <br></br>
+                      </>
+                    ))}
+                  </>
+                ) : null}
               </div>
 
               <div className="sm:col-span-2">
@@ -380,7 +532,7 @@ export default function CreateSekolahPage() {
           </section>
 
           {/* Kontak Sekolah */}
-          <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          {/* <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
             <div className="flex items-center gap-4 border-b border-slate-100 px-5 py-5 sm:px-7">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-violet-50 text-violet-600">
                 <svg
@@ -458,7 +610,7 @@ export default function CreateSekolahPage() {
                 />
               </div>
             </div>
-          </section>
+          </section> */}
 
           {/* Footer Actions */}
           <div className="sticky bottom-0 z-10 -mx-4 border-t border-slate-200 bg-white/95 px-4 py-4 backdrop-blur-xl sm:-mx-6 sm:px-6 xl:static xl:mx-0 xl:border-0 xl:bg-transparent xl:px-0 xl:py-0 xl:backdrop-blur-none">

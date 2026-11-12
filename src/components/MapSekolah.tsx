@@ -2,7 +2,7 @@
 
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
-import { Sekolah } from "../modules/models/sekolah.model";
+import { Sekolah } from "../models/sekolah.models";
 // import "leaflet/dist/leaflet.css";
 const markerIcon = L.divIcon({
   className: "custom-school-marker",

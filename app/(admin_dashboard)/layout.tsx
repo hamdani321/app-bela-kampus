@@ -1,30 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import {
-  LayoutDashboard,
-  GraduationCap,
-  School,
-  PanelsTopLeft,
-  CalendarDays,
   ClipboardList,
-  Users,
   ChevronDown,
-  ChevronLeft,
   ChevronRight,
   Search,
   Bell,
   MessageSquare,
   Plus,
-  ArrowUpRight,
-  ArrowDownRight,
-  MoreHorizontal,
   Menu,
   X,
   Check,
-  Clock3,
-  MapPin,
-  Calendar,
   Settings,
   LogOut,
   UserRound,
@@ -165,20 +152,20 @@ const activities = [
     icon: ClipboardList,
     color: "bg-indigo-100 text-indigo-600",
   },
-  {
-    title: "Portal kegiatan diperbarui",
-    detail: "Campus Visit 2026",
-    time: "35 menit lalu",
-    icon: PanelsTopLeft,
-    color: "bg-sky-100 text-sky-600",
-  },
-  {
-    title: "Data sekolah ditambahkan",
-    detail: "SMK Negeri 1 Kampar",
-    time: "1 jam lalu",
-    icon: School,
-    color: "bg-violet-100 text-violet-600",
-  },
+  // {
+  //   title: "Portal kegiatan diperbarui",
+  //   detail: "Campus Visit 2026",
+  //   time: "35 menit lalu",
+  //   icon: PanelsTopLeft,
+  //   color: "bg-sky-100 text-sky-600",
+  // },
+  // {
+  //   title: "Data sekolah ditambahkan",
+  //   detail: "SMK Negeri 1 Kampar",
+  //   time: "1 jam lalu",
+  //   icon: School,
+  //   color: "bg-violet-100 text-violet-600",
+  // },
   {
     title: "Registrasi disetujui",
     detail: "Muhammad Farhan",
@@ -266,15 +253,15 @@ export default function AdminLayout({
   //   return matchesSearch && matchesStatus;
   // });
 
-  const pageDescriptions: Record<string, string> = {
-    Dashboard: "Pantau aktivitas dan perkembangan Bela Kampus.",
-    Mahasiswa: "Kelola data mahasiswa yang mengikuti kegiatan.",
-    Sekolah: "Kelola sekolah tujuan promosi kampus.",
-    Portal: "Atur portal dan kegiatan promosi kampus.",
-    "Tahun Ajaran": "Kelola periode akademik dan tahun ajaran.",
-    "Registrasi Portal": "Pantau dan verifikasi pendaftaran kegiatan.",
-    User: "Kelola akun pengguna dan hak akses sistem.",
-  };
+  // const pageDescriptions: Record<string, string> = {
+  //   Dashboard: "Pantau aktivitas dan perkembangan Bela Kampus.",
+  //   Mahasiswa: "Kelola data mahasiswa yang mengikuti kegiatan.",
+  //   Sekolah: "Kelola sekolah tujuan promosi kampus.",
+  //   Portal: "Atur portal dan kegiatan promosi kampus.",
+  //   "Tahun Ajaran": "Kelola periode akademik dan tahun ajaran.",
+  //   "Registrasi Portal": "Pantau dan verifikasi pendaftaran kegiatan.",
+  //   User: "Kelola akun pengguna dan hak akses sistem.",
+  // };
 
   function submitForm(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -283,7 +270,7 @@ export default function AdminLayout({
     setForm({ name: "", email: "", category: "Mahasiswa" });
   }
 
-  const panelOpen = showNotifications || showMessages || showProfile;
+  // const panelOpen = showNotifications || showMessages || showProfile;
 
   function closePanels() {
     setShowNotifications(false);
@@ -303,14 +290,16 @@ export default function AdminLayout({
       )}
 
       {/* Sidebar */}
-      <Sidebar
-        setMobileSidebar={setMobileSidebar}
-        setSidebarOpen={setSidebarOpen}
-        sidebarOpen={sidebarOpen}
-        activeMenu={activeMenu}
-        mobileSidebar={mobileSidebar}
-        setActiveMenu={setActiveMenu}
-      />
+      <Suspense fallback={<div>Loading sidebar..</div>}>
+        <Sidebar
+          setMobileSidebar={setMobileSidebar}
+          setSidebarOpen={setSidebarOpen}
+          sidebarOpen={sidebarOpen}
+          activeMenu={activeMenu}
+          mobileSidebar={mobileSidebar}
+          setActiveMenu={setActiveMenu}
+        />
+      </Suspense>
       {/* <aside
         className={`fixed inset-y-0 left-0 z-50 flex flex-col border-r border-slate-200/80 bg-white transition-all duration-300 ${
           mobileSidebar

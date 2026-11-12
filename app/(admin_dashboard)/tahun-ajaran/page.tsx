@@ -1,4 +1,235 @@
+"use client";
+import { TahunAjaran } from "@/src/models/tahun_ajaran.models";
+import { getTahunAjaran } from "@/src/modules/tahun_ajaran/services/tahun-ajaran.service";
+import { useEffect, useMemo, useState } from "react";
+
+import {
+  AllCommunityModule,
+  ColDef,
+  ICellRendererParams,
+} from "ag-grid-community";
+import { AgGridProvider, AgGridReact } from "ag-grid-react";
+import { formatDate } from "@/src/modules/utilities/date-formatter";
+
+const modules = [AllCommunityModule];
+
 export default function TahunAjaranPage() {
+  const [tahunAjaran, setTahunAjaran] = useState<TahunAjaran[]>([]);
+  async function fetchTahunAjaran() {
+    const result = await getTahunAjaran();
+    console.log(result);
+
+    setTahunAjaran(result.data);
+  }
+  useEffect(() => {
+    fetchTahunAjaran();
+  }, []);
+
+  const defaultColDef = useMemo<ColDef<TahunAjaran>>(
+    () => ({
+      sortable: true,
+      resizable: true,
+    }),
+    []
+  );
+
+  const columnDefs = useMemo<ColDef<TahunAjaran>[]>(
+    () => [
+      {
+        field: "id",
+        headerName: "No",
+        width: 80,
+        sortable: true,
+        filter: false,
+        cellStyle: {
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        },
+        valueGetter: (params) => {
+          return params.node?.rowIndex != null ? params.node.rowIndex + 1 : "";
+        },
+        cellClass: "text-center font-medium text-slate-500",
+        headerClass: "ag-header-cell-center",
+      },
+      {
+        field: "nama",
+        headerName: "Nama Tahun Ajaran",
+        minWidth: 220,
+        flex: 1,
+        filter: true,
+        cellRenderer: (params: ICellRendererParams<TahunAjaran>) => {
+          return (
+            <div className="flex h-full items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1z"
+                  />
+                </svg>
+              </div>
+
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-slate-800">
+                  {params.value || "-"}
+                </p>
+                <p className="mt-0.5 text-xs text-slate-400">
+                  Tahun ajaran akademik
+                </p>
+              </div>
+            </div>
+          );
+        },
+      },
+      {
+        field: "tahun",
+        headerName: "Tahun",
+        width: 150,
+        filter: "agNumberColumnFilter",
+        wrapText: true,
+        cellStyle: {
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        },
+        cellRenderer: (params: ICellRendererParams<TahunAjaran>) => {
+          return (
+            <span className="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-700">
+              <svg
+                className="h-4 w-4 text-slate-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z"
+                />
+              </svg>
+              {params.value ?? "-"}
+            </span>
+          );
+        },
+      },
+      {
+        field: "jenis",
+        headerName: "Semester",
+        width: 150,
+        filter: true,
+        cellStyle: {
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        },
+        cellRenderer: (params: ICellRendererParams<TahunAjaran>) => {
+          const isGanjil = params.value === "Ganjil";
+
+          return (
+            <span
+              className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold ${
+                isGanjil
+                  ? "bg-sky-100 text-sky-700"
+                  : "bg-amber-100 text-amber-700"
+              }`}
+            >
+              <span
+                className={`h-1.5 w-1.5 rounded-full ${
+                  isGanjil ? "bg-sky-500" : "bg-amber-500"
+                }`}
+              />
+              Semester {params.value || "-"}
+            </span>
+          );
+        },
+      },
+      {
+        field: "createdAt",
+        headerName: "Dibuat Pada",
+        minWidth: 190,
+        filter: "agDateColumnFilter",
+        cellStyle: {
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        },
+        wrapText: true,
+        valueFormatter: (params) => {
+          return params.value ? formatDate(params.value) : "-";
+        },
+        cellClass: "text-sm text-slate-500",
+      },
+      {
+        field: "id",
+        headerName: "Aksi",
+        width: 130,
+        sortable: false,
+        filter: false,
+        cellStyle: {
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        },
+        // headerClass: "ag-header-cell-center",
+        cellRenderer: (params: ICellRendererParams<TahunAjaran>) => {
+          return (
+            <div className="flex h-full items-center justify-center gap-1">
+              <button
+                title="Edit"
+                onClick={() => console.log("Edit:", params.data)}
+                className="rounded-lg p-2 text-slate-400 transition hover:bg-amber-50 hover:text-amber-600"
+              >
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="m16 4 4 4M4 20l4-.8L19 8a2.12 2.12 0 00-3-3L5 16l-1 4z"
+                  />
+                </svg>
+              </button>
+
+              <button
+                title="Hapus"
+                onClick={() => console.log("Hapus:", params.data?.id)}
+                className="rounded-lg p-2 text-slate-400 transition hover:bg-red-50 hover:text-red-600"
+              >
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M3 6h18m-2 0-1 14H6L5 6m3 0V4h8v2m-7 4v6m4-6v6"
+                  />
+                </svg>
+              </button>
+            </div>
+          );
+        },
+      },
+    ],
+    []
+  );
+
   return (
     <>
       <div className="mx-auto max-w-7xl space-y-7">
@@ -69,7 +300,7 @@ export default function TahunAjaranPage() {
                   Total Tahun Ajaran
                 </p>
                 <h2 className="mt-3 text-3xl font-bold tracking-tight text-gray-900">
-                  8
+                  {tahunAjaran.length}
                 </h2>
                 <p className="mt-2 text-xs text-gray-500">
                   Seluruh data terdaftar
@@ -101,7 +332,7 @@ export default function TahunAjaranPage() {
                   Semester Ganjil
                 </p>
                 <h2 className="mt-3 text-3xl font-bold tracking-tight text-gray-900">
-                  4
+                  {tahunAjaran.filter((item) => item.jenis === "Ganjil").length}
                 </h2>
                 <p className="mt-2 text-xs text-gray-500">
                   Data semester ganjil
@@ -133,7 +364,7 @@ export default function TahunAjaranPage() {
                   Semester Genap
                 </p>
                 <h2 className="mt-3 text-3xl font-bold tracking-tight text-gray-900">
-                  4
+                  {tahunAjaran.filter((item) => item.jenis === "Genap").length}
                 </h2>
                 <p className="mt-2 text-xs text-gray-500">
                   Data semester genap
@@ -221,7 +452,29 @@ export default function TahunAjaranPage() {
           </div>
 
           {/* Responsive Table */}
-          <div className="overflow-x-auto">
+
+          <div
+            style={{
+              height: "1000px",
+            }}
+          >
+            <AgGridProvider modules={modules}>
+              <AgGridReact<TahunAjaran>
+                // theme={themeQuartz}
+
+                rowData={tahunAjaran}
+                columnDefs={columnDefs}
+                defaultColDef={defaultColDef}
+                getRowId={(params) => String(params.data.id)}
+                pagination={true}
+                paginationPageSize={10}
+                paginationPageSizeSelector={[10, 20, 50]}
+                animateRows={true}
+                rowHeight={100}
+              />
+            </AgGridProvider>
+          </div>
+          {/* <div className="overflow-x-auto">
             <table className="w-full min-w-[720px] text-left text-sm">
               <thead className="bg-gray-50/80 text-xs uppercase tracking-wider text-gray-500">
                 <tr>
@@ -234,7 +487,7 @@ export default function TahunAjaranPage() {
               </thead>
 
               <tbody className="divide-y divide-gray-100">
-                {/* Row 1 */}
+               
                 <tr className="transition hover:bg-indigo-50/30">
                   <td className="px-6 py-5 text-gray-500">1</td>
                   <td className="px-6 py-5">
@@ -317,7 +570,7 @@ export default function TahunAjaranPage() {
                   </td>
                 </tr>
 
-                {/* Row 2 */}
+               
                 <tr className="transition hover:bg-indigo-50/30">
                   <td className="px-6 py-5 text-gray-500">2</td>
                   <td className="px-6 py-5">
@@ -400,7 +653,7 @@ export default function TahunAjaranPage() {
                   </td>
                 </tr>
 
-                {/* Row 3 */}
+               
                 <tr className="transition hover:bg-indigo-50/30">
                   <td className="px-6 py-5 text-gray-500">3</td>
                   <td className="px-6 py-5">
@@ -483,7 +736,7 @@ export default function TahunAjaranPage() {
                   </td>
                 </tr>
 
-                {/* Row 4 */}
+               
                 <tr className="transition hover:bg-indigo-50/30">
                   <td className="px-6 py-5 text-gray-500">4</td>
                   <td className="px-6 py-5">
@@ -567,10 +820,10 @@ export default function TahunAjaranPage() {
                 </tr>
               </tbody>
             </table>
-          </div>
+          </div> */}
 
           {/* Pagination */}
-          <div className="flex flex-col gap-4 border-t border-gray-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          {/* <div className="flex flex-col gap-4 border-t border-gray-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <p className="text-sm text-gray-500">
               Menampilkan{" "}
               <span className="font-semibold text-gray-800">1–4</span> dari{" "}
@@ -605,7 +858,7 @@ export default function TahunAjaranPage() {
                 Selanjutnya
               </button>
             </div>
-          </div>
+          </div> */}
         </section>
 
         {/* Footer */}

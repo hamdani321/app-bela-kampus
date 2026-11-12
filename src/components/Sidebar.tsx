@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { StringDecoder } from "string_decoder";
 
 type MenuItem = {
   label: string;
@@ -36,6 +35,7 @@ const navigation: { title: string; items: MenuItem[] }[] = [
   {
     title: "MANAJEMEN KEGIATAN",
     items: [
+      { label: "Data Portal", icon: PanelsTopLeft, href: "/data-portal" },
       { label: "Portal", icon: PanelsTopLeft, href: "/portal" },
       { label: "Tahun Ajaran", icon: CalendarDays, href: "/tahun-ajaran" },
       {

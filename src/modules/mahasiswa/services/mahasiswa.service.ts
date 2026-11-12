@@ -1,4 +1,4 @@
-import { MahasiswaResponse } from "../../models/mahasiswa.model";
+import { MahasiswaResponse } from "../../../models/mahasiswa.models";
 
 export async function getAllMahasiswa(): Promise<MahasiswaResponse> {
   const response = await fetch(`http://localhost:3001/api/mahasiswa`, {
@@ -10,7 +10,5 @@ export async function getAllMahasiswa(): Promise<MahasiswaResponse> {
   });
 
   const responseBody: MahasiswaResponse = await response.json();
-  console.log("data mahasiswa ", responseBody);
-
   return responseBody;
 }

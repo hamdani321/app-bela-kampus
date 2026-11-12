@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
-import { Sekolah } from "../modules/models/sekolah.model";
+import { Sekolah } from "../models/sekolah.models";
 
 const MapSekolah = dynamic(() => import("@/src/components/MapSekolah"), {
   ssr: false,
@@ -16,7 +16,7 @@ const MapSekolah = dynamic(() => import("@/src/components/MapSekolah"), {
 export default function MapSekolahLoader({
   sekolah,
 }: {
-  sekolah: Sekolah[] | null;
+  sekolah: Sekolah[] | null | undefined;
 }) {
   const [mapKey, setMapKey] = useState(0);
   const [isReady, setIsReady] = useState(false);

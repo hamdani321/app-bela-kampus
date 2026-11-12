@@ -1,6 +1,6 @@
 "use client";
 
-import { Mahasiswa } from "@/src/modules/models/mahasiswa.model";
+import { Mahasiswa } from "@/src/models/mahasiswa.models";
 import { getAllMahasiswa } from "@/src/modules/mahasiswa/services/mahasiswa.service";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -14,9 +14,9 @@ export default function MahasiswaPage() {
   const [mahasiswa, setMahasiswa] = useState<Mahasiswa[]>();
   async function fetchMahasiswa() {
     const result = await getAllMahasiswa();
-    const listMahasiswa = result.data?.map((item) => new Mahasiswa(item));
+    // const listMahasiswa = result.data?.map((item) => new Mahasiswa(item));
 
-    setMahasiswa(listMahasiswa);
+    setMahasiswa(result.data);
   }
   useEffect(() => {
     fetchMahasiswa();

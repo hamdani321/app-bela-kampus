@@ -1,256 +1,395 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
-  Search,
-  Plus,
-  Filter,
   Download,
-  Eye,
-  Pencil,
-  Trash2,
   Users,
   UserRound,
   ClipboardList,
   CheckCircle2,
   Clock3,
   XCircle,
-  ChevronLeft,
-  ChevronRight,
   CalendarDays,
-  GraduationCap,
   School,
-  MoreHorizontal,
+  MapPin,
+  Phone,
+  Mail,
+  Trash2,
+  Pencil,
+  Eye,
 } from "lucide-react";
+import { getRegistrasi } from "@/src/modules/registrasi/services/registrasi.service";
+import { Registrasi as DataRegistrasi } from "@/src/models/registrasi.models";
 
-type StatusRegistrasi = "Disetujui" | "Menunggu" | "Ditolak";
-type JenisRegistrasi = "Individu" | "Kelompok";
+import {
+  AllCommunityModule,
+  ColDef,
+  ICellRendererParams,
+} from "ag-grid-community";
+import { AgGridProvider, AgGridReact } from "ag-grid-react";
 
-type Registrasi = {
-  id: number;
-  kode: string;
-  nama: string;
-  nim: string;
-  prodi: string;
-  kelas: string;
-  sekolah: string;
-  portal: string;
-  jenis: JenisRegistrasi;
-  jumlahAnggota: number;
-  tanggal: string;
-  status: StatusRegistrasi;
-};
-
-const dataRegistrasi: Registrasi[] = [
-  {
-    id: 1,
-    kode: "REG-2026-001",
-    nama: "Ahmad Fauzan",
-    nim: "202401001",
-    prodi: "Teknik Informatika",
-    kelas: "TI-2A",
-    sekolah: "SMAN 1 Bangkinang",
-    portal: "Bela Kampus 2026",
-    jenis: "Kelompok",
-    jumlahAnggota: 4,
-    tanggal: "24 Okt 2026",
-    status: "Disetujui",
-  },
-  {
-    id: 2,
-    kode: "REG-2026-002",
-    nama: "Siti Rahma",
-    nim: "202401015",
-    prodi: "Sistem Informasi",
-    kelas: "SI-2A",
-    sekolah: "SMAN 2 Pekanbaru",
-    portal: "Bela Kampus 2026",
-    jenis: "Individu",
-    jumlahAnggota: 1,
-    tanggal: "24 Okt 2026",
-    status: "Menunggu",
-  },
-  {
-    id: 3,
-    kode: "REG-2026-003",
-    nama: "Muhammad Rizky",
-    nim: "202401023",
-    prodi: "Teknik Informatika",
-    kelas: "TI-2B",
-    sekolah: "SMAN 1 Siak",
-    portal: "Promosi Kampus Ganjil",
-    jenis: "Kelompok",
-    jumlahAnggota: 5,
-    tanggal: "23 Okt 2026",
-    status: "Disetujui",
-  },
-  {
-    id: 4,
-    kode: "REG-2026-004",
-    nama: "Putri Amelia",
-    nim: "202401034",
-    prodi: "Teknik Pengolahan Sawit",
-    kelas: "TPS-2A",
-    sekolah: "SMKN 1 Tapung",
-    portal: "Bela Kampus 2026",
-    jenis: "Individu",
-    jumlahAnggota: 1,
-    tanggal: "22 Okt 2026",
-    status: "Ditolak",
-  },
-  {
-    id: 5,
-    kode: "REG-2026-005",
-    nama: "Dimas Pratama",
-    nim: "202401042",
-    prodi: "Teknik Informatika",
-    kelas: "TI-2A",
-    sekolah: "SMAN 1 Kampar",
-    portal: "Promosi Kampus Ganjil",
-    jenis: "Kelompok",
-    jumlahAnggota: 3,
-    tanggal: "21 Okt 2026",
-    status: "Menunggu",
-  },
-  {
-    id: 6,
-    kode: "REG-2026-006",
-    nama: "Nur Aisyah",
-    nim: "202401056",
-    prodi: "Sistem Informasi",
-    kelas: "SI-2B",
-    sekolah: "SMAN 3 Pekanbaru",
-    portal: "Bela Kampus 2026",
-    jenis: "Individu",
-    jumlahAnggota: 1,
-    tanggal: "20 Okt 2026",
-    status: "Disetujui",
-  },
-];
-
-const statusStyle: Record<StatusRegistrasi, string> = {
-  Disetujui: "bg-emerald-50 text-emerald-700 ring-emerald-600/20",
-  Menunggu: "bg-amber-50 text-amber-700 ring-amber-600/20",
-  Ditolak: "bg-rose-50 text-rose-700 ring-rose-600/20",
-};
+const modules = [AllCommunityModule];
 
 export default function RegistrasiPortalPage() {
-  const [search, setSearch] = useState("");
-  const [filterPortal, setFilterPortal] = useState("Semua Portal");
-  const [filterStatus, setFilterStatus] = useState("Semua Status");
-  const [filterJenis, setFilterJenis] = useState("Semua Jenis");
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 5;
-
-  const filteredData = useMemo(() => {
-    const keyword = search.toLowerCase().trim();
-
-    return dataRegistrasi.filter((item) => {
-      const cocokPencarian =
-        item.nama.toLowerCase().includes(keyword) ||
-        item.nim.toLowerCase().includes(keyword) ||
-        item.kode.toLowerCase().includes(keyword) ||
-        item.sekolah.toLowerCase().includes(keyword);
-
-      const cocokPortal =
-        filterPortal === "Semua Portal" || item.portal === filterPortal;
-
-      const cocokStatus =
-        filterStatus === "Semua Status" || item.status === filterStatus;
-
-      const cocokJenis =
-        filterJenis === "Semua Jenis" || item.jenis === filterJenis;
-
-      return cocokPencarian && cocokPortal && cocokStatus && cocokJenis;
-    });
-  }, [search, filterPortal, filterStatus, filterJenis]);
-
-  const totalPages = Math.max(1, Math.ceil(filteredData.length / pageSize));
-  const safePage = Math.min(currentPage, totalPages);
-  const paginatedData = filteredData.slice(
-    (safePage - 1) * pageSize,
-    safePage * pageSize
-  );
-
-  const resetPage = () => setCurrentPage(1);
+  const [registrasi, setRegistrasi] = useState<DataRegistrasi[]>([]);
 
   const stats = [
     {
       label: "Total Registrasi",
-      value: dataRegistrasi.length,
+      value: 2,
       icon: ClipboardList,
       color: "bg-blue-50 text-blue-600",
       description: "Seluruh pendaftaran",
     },
     {
       label: "Disetujui",
-      value: dataRegistrasi.filter((item) => item.status === "Disetujui")
-        .length,
+      value: 2,
       icon: CheckCircle2,
       color: "bg-emerald-50 text-emerald-600",
       description: "Registrasi diterima",
     },
     {
       label: "Menunggu",
-      value: dataRegistrasi.filter((item) => item.status === "Menunggu").length,
+      value: 1,
       icon: Clock3,
       color: "bg-amber-50 text-amber-600",
       description: "Perlu ditinjau",
     },
     {
       label: "Ditolak",
-      value: dataRegistrasi.filter((item) => item.status === "Ditolak").length,
+      value: 2,
       icon: XCircle,
       color: "bg-rose-50 text-rose-600",
       description: "Registrasi ditolak",
     },
   ];
 
-  function handleExport() {
-    const headers = [
-      "Kode Registrasi",
-      "Nama Mahasiswa",
-      "NIM",
-      "Program Studi",
-      "Kelas",
-      "Sekolah",
-      "Portal",
-      "Jenis Registrasi",
-      "Jumlah Anggota",
-      "Tanggal",
-      "Status",
-    ];
+  async function fetchRegistrasi() {
+    const result = await getRegistrasi();
 
-    const rows = filteredData.map((item) => [
-      item.kode,
-      item.nama,
-      item.nim,
-      item.prodi,
-      item.kelas,
-      item.sekolah,
-      item.portal,
-      item.jenis,
-      item.jumlahAnggota,
-      item.tanggal,
-      item.status,
-    ]);
-
-    const csv = [headers, ...rows]
-      .map((row) =>
-        row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(",")
-      )
-      .join("\n");
-
-    const blob = new Blob(["\uFEFF" + csv], {
-      type: "text/csv;charset=utf-8;",
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "data-registrasi-portal.csv";
-    link.click();
-    URL.revokeObjectURL(url);
+    setRegistrasi(result.data);
   }
+
+  useEffect(() => {
+    fetchRegistrasi();
+  }, []);
+
+  const defaultColDef = useMemo<ColDef<DataRegistrasi>>(
+    () => ({
+      sortable: true,
+      resizable: true,
+    }),
+    []
+  );
+
+  const columnDefs = useMemo<ColDef<DataRegistrasi>[]>(
+    () => [
+      {
+        headerName: "No",
+        valueGetter: (params) =>
+          params.node?.rowIndex != null ? params.node.rowIndex + 1 : "",
+        width: 80,
+        sortable: false,
+        filter: false,
+      },
+      {
+        field: "mahasiswa.nama",
+        headerName: "NIM",
+        minWidth: 100,
+        filter: true,
+        cellRenderer: (params: ICellRendererParams<DataRegistrasi>) => {
+          const item = params.data;
+
+          return (
+            <>
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-sm font-bold text-blue-700">
+                  {item?.mahasiswa?.nama
+                    .split(" ")
+                    .slice(0, 2)
+                    .map((word) => word[0])
+                    .join("")}
+                </div>
+
+                <div className="min-w-0">
+                  <p className="font-semibold text-gray-900">
+                    {item?.mahasiswa?.nama}
+                  </p>
+                  <p className="mt-1 text-xs text-gray-500">
+                    NIM : {item?.mahasiswa?.nim}
+                  </p>
+                </div>
+              </div>
+            </>
+          );
+        },
+      },
+      {
+        headerName: "PORTAL",
+        field: "portal",
+        minWidth: 240,
+        flex: 1.3,
+        filter: true,
+        sortable: true,
+        cellRenderer: (params: ICellRendererParams<DataRegistrasi>) => {
+          const portal = params.data?.portal;
+
+          if (!portal) {
+            return (
+              <span className="text-xs italic text-slate-400">
+                Tidak ada portal
+              </span>
+            );
+          }
+
+          const isGanjil = portal.tahun_ajaran?.jenis === "Ganjil";
+
+          return (
+            <div className="flex h-full items-center gap-3">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 ring-1 ring-indigo-100">
+                <CalendarDays size={19} />
+              </div>
+
+              <div className="flex min-w-0 flex-col justify-center gap-1.5">
+                <span className="truncate text-sm font-bold text-slate-800">
+                  {portal.tahun_ajaran?.nama}
+                </span>
+
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="text-xs font-medium text-slate-500">
+                    {portal.tahun_ajaran?.tahun}
+                  </span>
+
+                  <span className="text-slate-300">•</span>
+
+                  <span
+                    className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold ${
+                      isGanjil
+                        ? "bg-amber-50 text-amber-700 ring-1 ring-amber-200"
+                        : "bg-sky-50 text-sky-700 ring-1 ring-sky-200"
+                    }`}
+                  >
+                    {portal.tahun_ajaran?.jenis}
+                  </span>
+                </div>
+              </div>
+            </div>
+          );
+        },
+      },
+      {
+        headerName: "INFORMASI SEKOLAH",
+        field: "sekolah",
+        minWidth: 300,
+        flex: 1.8,
+        filter: true,
+        sortable: true,
+        autoHeight: true,
+        wrapText: true,
+        cellRenderer: (params: ICellRendererParams<DataRegistrasi>) => {
+          const sekolah = params.data?.sekolah;
+
+          if (!sekolah) {
+            return (
+              <div className="flex h-full items-center">
+                <span className="text-xs italic text-slate-400">
+                  Data sekolah tidak tersedia
+                </span>
+              </div>
+            );
+          }
+
+          return (
+            <div className="flex min-h-[110px] items-start gap-3 py-3">
+              {/* School Icon */}
+              <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 ring-1 ring-indigo-100">
+                <School size={21} />
+              </div>
+
+              {/* School Information */}
+              <div className="flex min-w-0 flex-1 flex-col gap-2">
+                {/* Name & NPSN */}
+                <div className="min-w-0 space-y-1">
+                  <p
+                    className="truncate text-sm font-bold text-slate-800"
+                    title={sekolah.nama}
+                  >
+                    {sekolah.nama}
+                  </p>
+
+                  <div className="flex items-center gap-1.5">
+                    <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-500">
+                      NPSN
+                    </span>
+
+                    <span className="text-xs font-medium tabular-nums text-slate-600">
+                      {sekolah.npsn || "-"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Contact Information */}
+                <div className="grid grid-cols-1 gap-x-3 gap-y-1.5 sm:grid-cols-2">
+                  {/* Email */}
+                  <div className="flex min-w-0 items-center gap-1.5 text-slate-500">
+                    <Mail size={13} className="shrink-0 text-indigo-400" />
+                    <span className="truncate text-xs" title={sekolah.email}>
+                      {sekolah.email || "Email belum tersedia"}
+                    </span>
+                  </div>
+
+                  {/* Phone */}
+                  <div className="flex min-w-0 items-center gap-1.5 text-slate-500">
+                    <Phone size={13} className="shrink-0 text-indigo-400" />
+                    <span className="truncate text-xs">
+                      {sekolah.telepon || "Telepon belum tersedia"}
+                    </span>
+                  </div>
+
+                  {/* Address */}
+                  <div className="flex min-w-0 items-start gap-1.5 text-slate-500 sm:col-span-2">
+                    <MapPin
+                      size={13}
+                      className="mt-0.5 shrink-0 text-indigo-400"
+                    />
+                    <span
+                      className="line-clamp-2 text-xs leading-relaxed"
+                      title={sekolah.alamat}
+                    >
+                      {sekolah.alamat || "Alamat belum tersedia"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        },
+      },
+      {
+        headerName: "TIPE REGISTRASI",
+        field: "tipe",
+        minWidth: 170,
+        flex: 0.9,
+        filter: true,
+        sortable: true,
+        cellRenderer: (params: ICellRendererParams<DataRegistrasi>) => {
+          const isKelompok = params.value?.toUpperCase() === "KELOMPOK";
+
+          const totalAnggota = params.data?.registrasi_anggota?.length ?? 0;
+
+          return (
+            <div className="flex h-full flex-col items-start justify-center gap-1.5 py-2">
+              <span
+                className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold ring-1 ${
+                  isKelompok
+                    ? "bg-violet-50 text-violet-700 ring-violet-200"
+                    : "bg-cyan-50 text-cyan-700 ring-cyan-200"
+                }`}
+              >
+                {isKelompok ? <Users size={14} /> : <UserRound size={14} />}
+
+                {isKelompok ? "Kelompok" : "Individu"}
+              </span>
+
+              {isKelompok && (
+                <span className="inline-flex items-center gap-1.5 rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
+                  <Users size={12} className="text-slate-400" />
+                  {totalAnggota} Anggota
+                </span>
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        headerName: "STATUS",
+        field: "status",
+        minWidth: 130,
+        maxWidth: 150,
+        filter: true,
+        sortable: true,
+        cellRenderer: (params: ICellRendererParams<DataRegistrasi>) => {
+          const status = params.data?.status;
+
+          // const statusStyle: Record<string, string> = {
+          //   AKTIF: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+          //   NONAKTIF: "bg-slate-100 text-slate-600 ring-slate-200",
+          //   MENUNGGU: "bg-amber-50 text-amber-700 ring-amber-200",
+          //   DITOLAK: "bg-red-50 text-red-700 ring-red-200",
+          //   SELESAI: "bg-blue-50 text-blue-700 ring-blue-200",
+          // };
+
+          return (
+            <div className="flex h-full items-center">
+              <span
+                className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold ring-1 ${
+                  status === "Approve"
+                    ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
+                    : "bg-red-50 text-red-700 ring-red-200"
+                }`}
+              >
+                {status || "TIDAK DIKETAHUI"}
+              </span>
+            </div>
+          );
+        },
+      },
+
+      {
+        headerName: "AKSI",
+        field: "id",
+        minWidth: 150,
+        maxWidth: 150,
+        sortable: false,
+        filter: false,
+        resizable: false,
+        cellRenderer: (params: ICellRendererParams<DataRegistrasi>) => {
+          const registrasi = params.data;
+
+          if (!registrasi) return null;
+
+          return (
+            <div className="flex h-full items-center justify-center gap-2">
+              {/* Detail */}
+              <button
+                type="button"
+                title="Lihat detail"
+                // onClick={() => handleDetail(registrasi)}
+                className="flex size-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition-all hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600"
+              >
+                <Eye size={15} />
+              </button>
+
+              {/* Edit */}
+              <button
+                type="button"
+                title="Edit registrasi"
+                // onClick={() => handleEdit(registrasi)}
+                className="flex size-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition-all hover:border-amber-200 hover:bg-amber-50 hover:text-amber-600"
+              >
+                <Pencil size={15} />
+              </button>
+
+              {/* Hapus */}
+              <button
+                type="button"
+                title="Hapus registrasi"
+                // onClick={() => handleDelete(registrasi)}
+                className="flex size-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition-all hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+              >
+                <Trash2 size={15} />
+              </button>
+            </div>
+          );
+        },
+      },
+    ],
+    []
+  );
+
+  useEffect(() => {
+    fetchRegistrasi();
+  }, []);
 
   return (
     <>
@@ -275,14 +414,14 @@ export default function RegistrasiPortalPage() {
 
         <div className="flex flex-wrap gap-3">
           <button
-            onClick={handleExport}
+            // onClick={handleExport}
             className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50"
           >
             <Download size={17} />
             Export CSV
           </button>
 
-          <button
+          {/* <button
             onClick={() =>
               alert("Hubungkan tombol ini ke halaman tambah registrasi.")
             }
@@ -290,7 +429,7 @@ export default function RegistrasiPortalPage() {
           >
             <Plus size={18} />
             Tambah Registrasi
-          </button>
+          </button> */}
         </div>
       </section>
 
@@ -327,326 +466,34 @@ export default function RegistrasiPortalPage() {
       </section>
 
       {/* Table container */}
+
+      {/* Table Registrasi */}
       <section className="mt-3 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="border-b border-gray-100 p-5 sm:p-6">
-          <div className="flex flex-col justify-between gap-4 xl:flex-row xl:items-center">
-            <div>
-              <h2 className="text-lg font-bold text-gray-900">
-                Daftar Registrasi
-              </h2>
-              <p className="mt-1 text-sm text-gray-500">
-                Data pendaftaran mahasiswa berdasarkan portal kegiatan.
-              </p>
-            </div>
-
-            <div className="relative w-full xl:max-w-sm">
-              <Search
-                size={18}
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
+          <div
+            style={{
+              height: "1000px",
+            }}
+          >
+            <AgGridProvider modules={modules}>
+              <AgGridReact<DataRegistrasi>
+                rowData={registrasi}
+                columnDefs={columnDefs}
+                defaultColDef={defaultColDef}
+                getRowId={(params) => String(params.data.id)}
+                pagination={true}
+                paginationPageSize={10}
+                paginationPageSizeSelector={[10, 20, 50]}
+                animateRows={true}
+                rowHeight={100}
               />
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  resetPage();
-                }}
-                placeholder="Cari nama, NIM, kode, sekolah..."
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10"
-              />
-            </div>
-          </div>
-
-          {/* Filters */}
-          <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-            <div className="flex items-center gap-2 text-sm font-medium text-gray-500">
-              <Filter size={16} />
-              Filter:
-            </div>
-
-            <select
-              value={filterPortal}
-              onChange={(e) => {
-                setFilterPortal(e.target.value);
-                resetPage();
-              }}
-              className="rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10"
-            >
-              <option>Semua Portal</option>
-              <option>Bela Kampus 2026</option>
-              <option>Promosi Kampus Ganjil</option>
-            </select>
-
-            <select
-              value={filterStatus}
-              onChange={(e) => {
-                setFilterStatus(e.target.value);
-                resetPage();
-              }}
-              className="rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10"
-            >
-              <option>Semua Status</option>
-              <option>Disetujui</option>
-              <option>Menunggu</option>
-              <option>Ditolak</option>
-            </select>
-
-            <select
-              value={filterJenis}
-              onChange={(e) => {
-                setFilterJenis(e.target.value);
-                resetPage();
-              }}
-              className="rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10"
-            >
-              <option>Semua Jenis</option>
-              <option>Individu</option>
-              <option>Kelompok</option>
-            </select>
-
-            <div className="sm:ml-auto">
-              <span className="rounded-lg bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700">
-                {filteredData.length} data ditemukan
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Responsive table */}
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[1150px] border-collapse text-left">
-            <thead>
-              <tr className="bg-gray-50/80 text-xs font-semibold uppercase tracking-wider text-gray-500">
-                <th className="px-6 py-4">Mahasiswa</th>
-                <th className="px-5 py-4">Portal & Sekolah</th>
-                <th className="px-5 py-4">Jenis</th>
-                <th className="px-5 py-4">Tanggal Daftar</th>
-                <th className="px-5 py-4">Status</th>
-                <th className="px-6 py-4 text-right">Aksi</th>
-              </tr>
-            </thead>
-
-            <tbody className="divide-y divide-gray-100">
-              {paginatedData.map((item) => (
-                <tr key={item.id} className="transition hover:bg-blue-50/30">
-                  {/* Student */}
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-sm font-bold text-blue-700">
-                        {item.nama
-                          .split(" ")
-                          .slice(0, 2)
-                          .map((word) => word[0])
-                          .join("")}
-                      </div>
-
-                      <div className="min-w-0">
-                        <p className="font-semibold text-gray-900">
-                          {item.nama}
-                        </p>
-                        <p className="mt-1 text-xs text-gray-500">
-                          NIM: {item.nim}
-                        </p>
-                        <p className="mt-1 text-xs text-gray-400">
-                          {item.prodi} · {item.kelas}
-                        </p>
-                        <p className="mt-1 text-[11px] font-medium text-blue-600">
-                          {item.kode}
-                        </p>
-                      </div>
-                    </div>
-                  </td>
-
-                  {/* Portal */}
-                  <td className="px-5 py-4">
-                    <div className="flex items-start gap-2.5">
-                      <div className="mt-0.5 rounded-lg bg-violet-50 p-2 text-violet-600">
-                        <School size={17} />
-                      </div>
-                      <div>
-                        <p className="max-w-[230px] font-semibold text-gray-800">
-                          {item.portal}
-                        </p>
-                        <p className="mt-1 flex items-center gap-1.5 text-xs text-gray-500">
-                          <GraduationCap size={14} />
-                          {item.sekolah}
-                        </p>
-                      </div>
-                    </div>
-                  </td>
-
-                  {/* Registration type */}
-                  <td className="px-5 py-4">
-                    {item.jenis === "Kelompok" ? (
-                      <div className="inline-flex items-center gap-2 rounded-lg bg-violet-50 px-3 py-2 text-xs font-semibold text-violet-700">
-                        <Users size={15} />
-                        Kelompok
-                      </div>
-                    ) : (
-                      <div className="inline-flex items-center gap-2 rounded-lg bg-sky-50 px-3 py-2 text-xs font-semibold text-sky-700">
-                        <UserRound size={15} />
-                        Individu
-                      </div>
-                    )}
-
-                    <p className="mt-2 text-xs text-gray-500">
-                      {item.jumlahAnggota}{" "}
-                      {item.jumlahAnggota === 1 ? "mahasiswa" : "mahasiswa"}
-                    </p>
-                  </td>
-
-                  {/* Date */}
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <CalendarDays size={16} className="text-gray-400" />
-                      {item.tanggal}
-                    </div>
-                  </td>
-
-                  {/* Status */}
-                  <td className="px-5 py-4">
-                    <span
-                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ring-1 ring-inset ${
-                        statusStyle[item.status]
-                      }`}
-                    >
-                      <span
-                        className={`h-1.5 w-1.5 rounded-full ${
-                          item.status === "Disetujui"
-                            ? "bg-emerald-500"
-                            : item.status === "Menunggu"
-                            ? "bg-amber-500"
-                            : "bg-rose-500"
-                        }`}
-                      />
-                      {item.status}
-                    </span>
-                  </td>
-
-                  {/* Actions */}
-                  <td className="px-6 py-4">
-                    <div className="flex items-center justify-end gap-1.5">
-                      <button
-                        title="Lihat detail"
-                        onClick={() => alert(`Detail registrasi ${item.kode}`)}
-                        className="rounded-lg p-2 text-gray-500 transition hover:bg-blue-50 hover:text-blue-600"
-                      >
-                        <Eye size={17} />
-                      </button>
-                      <button
-                        title="Edit registrasi"
-                        onClick={() => alert(`Edit registrasi ${item.kode}`)}
-                        className="rounded-lg p-2 text-gray-500 transition hover:bg-amber-50 hover:text-amber-600"
-                      >
-                        <Pencil size={17} />
-                      </button>
-                      <button
-                        title="Hapus registrasi"
-                        onClick={() => alert(`Konfirmasi hapus ${item.kode}`)}
-                        className="rounded-lg p-2 text-gray-500 transition hover:bg-rose-50 hover:text-rose-600"
-                      >
-                        <Trash2 size={17} />
-                      </button>
-                      <button
-                        title="Aksi lainnya"
-                        onClick={() => alert(`Aksi lainnya untuk ${item.kode}`)}
-                        className="rounded-lg p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-700"
-                      >
-                        <MoreHorizontal size={17} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-
-              {paginatedData.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="px-6 py-16 text-center">
-                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-100 text-gray-400">
-                      <ClipboardList size={25} />
-                    </div>
-                    <p className="mt-4 font-semibold text-gray-800">
-                      Data registrasi tidak ditemukan
-                    </p>
-                    <p className="mt-1 text-sm text-gray-500">
-                      Coba ubah kata kunci pencarian atau filter yang digunakan.
-                    </p>
-                    <button
-                      onClick={() => {
-                        setSearch("");
-                        setFilterPortal("Semua Portal");
-                        setFilterStatus("Semua Status");
-                        setFilterJenis("Semua Jenis");
-                        resetPage();
-                      }}
-                      className="mt-4 text-sm font-semibold text-blue-600 hover:text-blue-700"
-                    >
-                      Reset semua filter
-                    </button>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
-        <div className="flex flex-col justify-between gap-4 border-t border-gray-100 px-5 py-4 sm:flex-row sm:items-center sm:px-6">
-          <p className="text-sm text-gray-500">
-            Menampilkan{" "}
-            <span className="font-semibold text-gray-800">
-              {filteredData.length === 0 ? 0 : (safePage - 1) * pageSize + 1}
-              {"–"}
-              {Math.min(safePage * pageSize, filteredData.length)}
-            </span>{" "}
-            dari{" "}
-            <span className="font-semibold text-gray-800">
-              {filteredData.length}
-            </span>{" "}
-            registrasi
-          </p>
-
-          <div className="flex items-center gap-2">
-            <button
-              disabled={safePage === 1}
-              onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-              className="flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              <ChevronLeft size={16} />
-              Sebelumnya
-            </button>
-
-            {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-              (page) => (
-                <button
-                  key={page}
-                  onClick={() => setCurrentPage(page)}
-                  className={`h-9 w-9 rounded-lg text-sm font-semibold transition ${
-                    safePage === page
-                      ? "bg-blue-600 text-white shadow-sm"
-                      : "text-gray-600 hover:bg-gray-100"
-                  }`}
-                >
-                  {page}
-                </button>
-              )
-            )}
-
-            <button
-              disabled={safePage === totalPages || filteredData.length === 0}
-              onClick={() =>
-                setCurrentPage((page) => Math.min(totalPages, page + 1))
-              }
-              className="flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              Selanjutnya
-              <ChevronRight size={16} />
-            </button>
+            </AgGridProvider>
           </div>
         </div>
       </section>
 
-      {/* Information footer */}
+      {/* End Table Registrasi */}
+
       <div className="flex mt-3 items-start gap-3 rounded-2xl border border-blue-100 bg-blue-50/70 p-4">
         <div className="rounded-lg bg-white p-2 text-blue-600 shadow-sm">
           <ClipboardList size={19} />
